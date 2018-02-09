@@ -2,7 +2,7 @@
   "commitish" : "v1.1",
   "iOS" : [
     {
-      "hash" : "d4eb45888ffe1d21dcf495f796ee594842903afc0a0366953bbb11fb94089564",
+      "hash" : "267a6539c0439aed47db14f296036fd52c0854ecb0c1be2fc20431b86ce3f7d9",
       "name" : "SNDrawableView"
     }
   ]
