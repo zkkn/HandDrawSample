@@ -18,8 +18,7 @@ class ViewController: UIViewController {
     
     fileprivate lazy var drawView: DrawableView = {
         let view = DrawableView()
-        view.lineColor = UIColor.green.cgColor
-        view.lineWidth = 12.0
+        view.lineColor = UIColor.black.cgColor
         return view
     }()
     
@@ -41,10 +40,33 @@ class ViewController: UIViewController {
         return button
     }()
     
+    fileprivate let lineWidthSlider: UISlider = {
+        let slider = UISlider()
+        slider.sizeToFit()
+        slider.maximumValue = 30
+        slider.minimumValue = 1
+        slider.tintColor = .black
+        return slider
+    }()
+    
     
     // MARK - Properties -
     
     fileprivate let disposeBag = DisposeBag()
+    fileprivate let viewModel: ViewModel
+    
+    
+    // MARK - Initilaizer
+    
+    init(viewModel: ViewModel) {
+        self.viewModel = viewModel
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
 
 
@@ -58,16 +80,19 @@ extension ViewController {
         setViews()
         setConstraints()
         subscribeView()
+        subscribeViewModel()
     }
     
     fileprivate func confugure() {
         self.view.backgroundColor = .white
     }
+    
     fileprivate func setViews() {
         self.view.addSubview(drawView)
         self.view.addSubview(imageView)
         self.view.addSubview(undoButton)
         self.view.addSubview(redoButton)
+        self.view.addSubview(lineWidthSlider)
     }
     
     fileprivate func setConstraints() {
@@ -91,6 +116,11 @@ extension ViewController {
             make.left.equalTo(undoButton.snp.right).offset(100)
             make.width.height.equalTo(100)
         }
+        
+         lineWidthSlider.snp.makeConstraints { make in
+            make.left.right.equalTo(view).inset(64)
+            make.bottom.equalTo(view.snp.bottom).inset(64)
+        }
     }
     
     fileprivate func subscribeView() {
@@ -105,5 +135,17 @@ extension ViewController {
             self?.drawView.redo()
         })
         .disposed(by: disposeBag)
+        
+        lineWidthSlider.rx.value.subscribe(onNext: {[weak self] value in
+            self?.viewModel.sliderValue.value = Float(value)
+        })
+        .disposed(by: disposeBag)
+    }
+    
+    fileprivate func subscribeViewModel() {
+        lineWidthSlider.rx.value.subscribe(onNext: {[weak self] (value) in
+            self?.drawView.lineWidth = CGFloat((self?.viewModel.sliderValue.value)!)
+        })
+            .addDisposableTo(disposeBag)
     }
 }
